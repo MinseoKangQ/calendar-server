@@ -72,5 +72,12 @@ public class GlobalExceptionHandler {
                 .body(CustomApiResponse.createFailWithoutData(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
     }
 
+    @ExceptionHandler(TokenInvalidException.class)
+    public ResponseEntity<CustomApiResponse<?>> handleTokenInvalidException(TokenInvalidException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(CustomApiResponse.createFailWithoutData(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package com.server.calendar.doamin;
 
+import com.server.calendar.todo.dto.CreateTodoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,7 +28,7 @@ public class TodoList {
     @Column(name = "id")
     private Long id;
 
-    private String date;
+    private String date; // OOOO-OO-OO 형식
 
     private String title;
 
@@ -45,5 +46,14 @@ public class TodoList {
     // 상태 바꾸기
     public void changeDoneStatus(TodoList todoList) {
         this.isDone = !this.isDone;
+    }
+
+    // 할 일 생성
+    public static TodoList toEntity(CreateTodoDto dto) {
+        return TodoList.builder()
+                .title(dto.getTitle())
+                .date(dto.getDate())
+                .title(dto.getTitle())
+                .build();
     }
 }
