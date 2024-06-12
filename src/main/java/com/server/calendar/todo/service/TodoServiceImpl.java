@@ -89,6 +89,7 @@ public class TodoServiceImpl implements TodoService{
         // DTO로 변환
         List<getOneDayTodoListDto> todoListDtos = todos.stream()
                 .map(todo -> getOneDayTodoListDto.builder()
+                        .todoId(todo.getId())
                         .title(todo.getTitle())
                         .category(todo.getCategory())
                         .isDone(todo.getIsDone())

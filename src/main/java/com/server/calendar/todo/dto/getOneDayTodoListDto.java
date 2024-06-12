@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class getOneDayTodoListDto {
+    private Long todoId;
     private String title;
     private Category category;
     private Boolean isDone;
