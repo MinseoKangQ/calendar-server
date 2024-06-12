@@ -1,5 +1,6 @@
 package com.server.calendar.todo.controller;
 
+import com.server.calendar.todo.dto.ChangeTitleDto;
 import com.server.calendar.todo.dto.CreateTodoDto;
 import com.server.calendar.todo.service.TodoService;
 import com.server.calendar.util.response.CustomApiResponse;
@@ -35,6 +36,11 @@ public class TodoController {
     @PutMapping("/checking/{todoId}")
     public ResponseEntity<CustomApiResponse<?>> changeCheckState(@PathVariable Long todoId, HttpServletRequest request) {
         return todoService.changeCheckState(todoId, request);
+    }
+
+    @PutMapping("/title/{todoId}")
+    public ResponseEntity<CustomApiResponse<?>> changeTitle(@PathVariable Long todoId, @RequestBody ChangeTitleDto dto, HttpServletRequest request) {
+        return todoService.changeTitle(dto, todoId, request);
     }
 
 

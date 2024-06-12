@@ -2,6 +2,7 @@ package com.server.calendar.todo.service;
 
 import com.server.calendar.doamin.TodoList;
 import com.server.calendar.doamin.User;
+import com.server.calendar.todo.dto.ChangeTitleDto;
 import com.server.calendar.todo.dto.CreateTodoDto;
 import com.server.calendar.todo.dto.CreateTodoDto.CreateTodoDtoBuilder;
 import com.server.calendar.todo.dto.getOneDayTodoListDto;
@@ -120,6 +121,33 @@ public class TodoServiceImpl implements TodoService{
         );
 
         todoList.changeDoneStatus();
+        todoRepository.save(todoList);
+
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, null, "데이터 변경 성공");
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> changeTitle(ChangeTitleDto dto, Long todoId, HttpServletRequest request) {
+        // 헤더에서 토큰 받아오기
+        String token = extractToken(request);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new TokenInvalidException("토큰이 유효하지 않습니다.");
+        }
+
+        // 토큰에서 userId 추출
+        String userId = jwtTokenProvider.getClaimsFromToken(token).getSubject();
+
+        // userId를 사용하여 User 엔티티 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        TodoList todoList = todoRepository.findTodoListById(todoId).orElseThrow(
+                () -> new EntityNotFoundException("찾을 수 없는 할 일 입니다.")
+        );
+
+        todoList.changeTitle(dto);
         todoRepository.save(todoList);
 
         CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, null, "데이터 변경 성공");

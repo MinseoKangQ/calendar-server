@@ -1,5 +1,6 @@
 package com.server.calendar.doamin;
 
+import com.server.calendar.todo.dto.ChangeTitleDto;
 import com.server.calendar.todo.dto.CreateTodoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,6 +49,11 @@ public class TodoList {
     // 상태 바꾸기
     public void changeDoneStatus() {
         this.isDone = !this.isDone;
+    }
+
+    // 할 일 바꾸기
+    public void changeTitle(ChangeTitleDto dto) {
+        this.title = dto.getTitle();
     }
 
     // 할 일 생성
