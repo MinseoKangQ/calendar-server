@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +30,7 @@ public class TodoList {
     @Column(name = "id")
     private Long id;
 
-    private String date; // OOOO-OO-OO 형식
+    private LocalDate date;
 
     private String title;
 
@@ -50,10 +52,13 @@ public class TodoList {
 
     // 할 일 생성
     public static TodoList toEntity(CreateTodoDto dto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate parsedDate = LocalDate.parse(dto.getDate(), formatter);
+
         return TodoList.builder()
                 .title(dto.getTitle())
-                .date(dto.getDate())
-                .title(dto.getTitle())
+                .date(parsedDate)
+                .category(dto.getCategory())
                 .build();
     }
 }
