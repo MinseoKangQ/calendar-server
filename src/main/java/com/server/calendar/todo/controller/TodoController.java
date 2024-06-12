@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,11 @@ public class TodoController {
     @GetMapping("/oneDay/{date}")
     public ResponseEntity<CustomApiResponse<?>> getOneDayTodoList(@PathVariable LocalDate date, HttpServletRequest request) {
         return todoService.getOneDayTodoList(date, request);
+    }
+
+    @PutMapping("/checking/{todoId}")
+    public ResponseEntity<CustomApiResponse<?>> changeCheckState(@PathVariable Long todoId, HttpServletRequest request) {
+        return todoService.changeCheckState(todoId, request);
     }
 
 

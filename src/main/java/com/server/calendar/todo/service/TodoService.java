@@ -10,4 +10,5 @@ public interface TodoService {
 
     ResponseEntity<CustomApiResponse<?>> createTodo(CreateTodoDto dto, HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> getOneDayTodoList(LocalDate date, HttpServletRequest request);
+    ResponseEntity<CustomApiResponse<?>> changeCheckState(Long todoId, HttpServletRequest request);
 }

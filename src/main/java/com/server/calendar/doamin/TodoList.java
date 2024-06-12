@@ -46,7 +46,7 @@ public class TodoList {
     private User user;
 
     // 상태 바꾸기
-    public void changeDoneStatus(TodoList todoList) {
+    public void changeDoneStatus() {
         this.isDone = !this.isDone;
     }
 
