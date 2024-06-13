@@ -22,7 +22,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles", "USER");
         Date now = new Date();
-        Date validity = new Date(now.getTime() + 36000000); // 1시간 유효
+        Date validity = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000L); // 7일 유효
 
         return Jwts.builder()
                 .setClaims(claims)
