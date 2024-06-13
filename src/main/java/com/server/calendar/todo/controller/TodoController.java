@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,11 @@ public class TodoController {
     @PutMapping("/title/{todoId}")
     public ResponseEntity<CustomApiResponse<?>> changeTitle(@PathVariable Long todoId, @RequestBody ChangeTitleDto dto, HttpServletRequest request) {
         return todoService.changeTitle(dto, todoId, request);
+    }
+
+    @DeleteMapping("/{todoId}")
+    public ResponseEntity<CustomApiResponse<?>> deleteTodo(@PathVariable Long todoId, HttpServletRequest request) {
+        return todoService.deleteTodo(todoId, request);
     }
 
 
