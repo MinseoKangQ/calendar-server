@@ -157,6 +157,30 @@ public class TodoServiceImpl implements TodoService{
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> getNotDoneCount(HttpServletRequest request) {
+        // 헤더에서 토큰 받아오기
+        String token = extractToken(request);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new TokenInvalidException("토큰이 유효하지 않습니다.");
+        }
+
+        // 토큰에서 userId 추출
+        String userId = jwtTokenProvider.getClaimsFromToken(token).getSubject();
+
+        // userId를 사용하여 User 엔티티 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 연관된 todoList 중 isDone 상태가 false 인 엔티티들 개수 찾기
+        Long count = todoRepository.countTodoListsByUserAndIsDone(user, false);
+
+        // data 넣기
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, count, "아직 끝나지 않은 일 개수 조회 성공");
+        return ResponseEntity.ok(response);
+    }
+
 
     @Override
     public ResponseEntity<CustomApiResponse<?>> changeCheckState(Long todoId, HttpServletRequest request) {

@@ -13,4 +13,5 @@ public interface TodoRepository extends JpaRepository<TodoList, Long> {
     List<TodoList> findByUserAndDate(User user, LocalDate date);
     Optional<TodoList> findTodoListById(Long id);
     List<TodoList> findByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate);
+    Long countTodoListsByUserAndIsDone(User user, Boolean isDone);
 }

@@ -12,6 +12,7 @@ public interface TodoService {
     ResponseEntity<CustomApiResponse<?>> createTodo(CreateTodoDto dto, HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> getOneDayTodoList(LocalDate date, HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> getOneMonth(String date, HttpServletRequest request);
+    ResponseEntity<CustomApiResponse<?>> getNotDoneCount(HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> changeCheckState(Long todoId, HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> changeTitle(ChangeTitleDto dto, Long todoId, HttpServletRequest request);
     ResponseEntity<CustomApiResponse<?>> deleteTodo(Long todoId, HttpServletRequest request);
