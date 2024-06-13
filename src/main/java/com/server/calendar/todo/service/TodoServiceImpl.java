@@ -5,6 +5,7 @@ import com.server.calendar.doamin.User;
 import com.server.calendar.todo.dto.ChangeTitleDto;
 import com.server.calendar.todo.dto.CreateTodoDto;
 import com.server.calendar.todo.dto.CreateTodoDto.CreateTodoDtoBuilder;
+import com.server.calendar.todo.dto.GetOneMonthDto;
 import com.server.calendar.todo.dto.getOneDayTodoListDto;
 import com.server.calendar.todo.repository.TodoRepository;
 import com.server.calendar.user.repository.UserRepository;
@@ -14,8 +15,11 @@ import com.server.calendar.util.jwt.JwtTokenProvider;
 import com.server.calendar.util.response.CustomApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +103,60 @@ public class TodoServiceImpl implements TodoService{
         CustomApiResponse<List<getOneDayTodoListDto>> response = CustomApiResponse.createSuccess(200, todoListDtos, "할 일 목록 조회 성공");
         return ResponseEntity.ok(response);
     }
+
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> getOneMonth(String date, HttpServletRequest request) {
+        // 헤더에서 토큰 받아오기
+        String token = extractToken(request);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new TokenInvalidException("토큰이 유효하지 않습니다.");
+        }
+
+        // 토큰에서 userId 추출
+        String userId = jwtTokenProvider.getClaimsFromToken(token).getSubject();
+
+        // userId를 사용하여 User 엔티티 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // date 파싱하여 YearMonth 객체로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth yearMonth = YearMonth.parse(date, formatter);
+
+        // 해당 달의 첫 번째 날과 마지막 날 계산
+        LocalDate firstDayOfMonth = yearMonth.atDay(1);
+        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+        // 해당 달의 모든 TodoList 조회
+        List<TodoList> todos = todoRepository.findByUserAndDateBetween(user, firstDayOfMonth, lastDayOfMonth);
+
+        // 날짜별 할 일 통계 계산
+        Map<Integer, GetOneMonthDto> resultMap = new HashMap<>();
+        for (LocalDate day = firstDayOfMonth; !day.isAfter(lastDayOfMonth); day = day.plusDays(1)) {
+            int doneCount = 0;
+            int notDoneCount = 0;
+
+            for (TodoList todo : todos) {
+                if (todo.getDate().equals(day)) {
+                    if (todo.getIsDone()) {
+                        doneCount++;
+                    } else {
+                        notDoneCount++;
+                    }
+                }
+            }
+
+            resultMap.put(day.getDayOfMonth(), GetOneMonthDto.builder()
+                    .doneCount(doneCount)
+                    .notDoneCount(notDoneCount)
+                    .build());
+        }
+
+        CustomApiResponse<Map<Integer, GetOneMonthDto>> response = CustomApiResponse.createSuccess(200, resultMap, "한 달 조회 성공");
+        return ResponseEntity.ok(response);
+    }
+
 
     @Override
     public ResponseEntity<CustomApiResponse<?>> changeCheckState(Long todoId, HttpServletRequest request) {
