@@ -1,14 +1,17 @@
 package com.server.calendar.user.service;
 
 import com.server.calendar.doamin.User;
+import com.server.calendar.todo.repository.TodoRepository;
 import com.server.calendar.user.dto.LoginDto;
 import com.server.calendar.user.dto.SignupDto;
 import com.server.calendar.user.repository.UserRepository;
 import com.server.calendar.util.exception.EntityDuplicatedException;
 import com.server.calendar.util.exception.EntityNotFoundException;
 import com.server.calendar.util.exception.PasswordIncorrectException;
+import com.server.calendar.util.exception.TokenInvalidException;
 import com.server.calendar.util.jwt.JwtTokenProvider;
 import com.server.calendar.util.response.CustomApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class UserServiceImpl implements UserService{
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final TodoRepository todoRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -95,4 +100,40 @@ public class UserServiceImpl implements UserService{
         CustomApiResponse<?> response = CustomApiResponse.createSuccess(201, null, "로그인 성공");
         return new ResponseEntity<>(response, headers, 201);
     }
+
+    @Transactional
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> deleteUser(HttpServletRequest request) {
+        // 헤더에서 토큰 받아오기
+        String token = extractToken(request);
+
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
+            throw new TokenInvalidException("토큰이 유효하지 않습니다.");
+        }
+
+        // 토큰에서 userId 추출
+        String userId = jwtTokenProvider.getClaimsFromToken(token).getSubject();
+
+        // userId를 사용하여 User 엔티티 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("토큰으로 사용자를 찾을 수 없습니다."));
+
+        // 사용자의 TodoList 삭제
+        todoRepository.deleteByUser(user);
+
+        // 사용자 삭제
+        userRepository.delete(user);
+
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, null, "회원 탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
 }

@@ -4,12 +4,14 @@ import com.server.calendar.user.dto.LoginDto;
 import com.server.calendar.user.dto.SignupDto;
 import com.server.calendar.user.service.UserService;
 import com.server.calendar.util.response.CustomApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +51,11 @@ public class UserController {
     @PostMapping("/signin")
     public ResponseEntity<CustomApiResponse<?>> login(@RequestBody LoginDto dto) {
         return userService.login(dto);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<CustomApiResponse<?>> deleteUser(HttpServletRequest request) {
+        return userService.deleteUser(request);
     }
 
 }
